@@ -1,10 +1,10 @@
 {
   "name": "Contamination",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "factorio_version": "0.15",
   "title": "Radioactive Contamination",
   "author": "TimeO84",
   "homepage": "https://github.com/TimeO84/RadioactiveContamination",
   "license": "https://github.com/TimeO84/RadioactiveContamination/blob/master/LICENSE",
-  "description": "Radioactive materials are deadly"
+  "description": "Adds radioactive contamination to your gameplay. Radiation does decay on players (not on items, DOT) , does not stop immediately after exposure stops. Radiation is not like pollution, it is only around radioactive items."
 }

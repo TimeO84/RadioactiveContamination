@@ -1,8 +1,17 @@
 
 local toxicityValue = settings.global["toxicity-value"].value;
+local radiationAreaSize = settings.global["radiation-area-size"].value;
+local invRadiation = settings.global["radiation-in-player-inventory"].value;
 
+local raduranore = settings.global["rad-uran-ore"].value;
+local radfuelcell = settings.global["rad-fuel-cell"].value;
+local radburntfuelcell = settings.global["rad-burnt-fuel-cell"].value;
+local raduranium235 = settings.global["rad-uranium-235"].value;
+local raduranium238 = settings.global["rad-uranium-238"].value;
+local radcentrifuge = settings.global["rad-centrifuge"].value;
+local radreactor = settings.global["rad-reactor"].value;
 function _log(...)
- --game.print("LOG: " .. ...)
+ game.print("LOG: " .. ...)
 end
 
 script.on_init(function()
@@ -23,6 +32,7 @@ function doDamage(event)
 			end
 			_log("doDamage [" .. player.name .. "], exposed: " .. tostring(curExposedRadiation) .. " - effective: [" .. tostring(curHalbwertszeit) .. "]");
 			if curHalbwertszeit >= 0.1 then
+			-- 0.16 player.play_sound("GeigerCounter");
 				curchar.damage(curHalbwertszeit, "neutral");
 			end
 			set_hwz(player, curHalbwertszeit);
@@ -40,17 +50,15 @@ end
 function calcRadiationByItem(name, amount)
 
 	if name =="uranium-ore" then
-		return amount / 100000 / 2000
-	elseif name =="nuclear-reactor" then
-		return 5 * amount;
+		return amount / 100000 / 2000 * raduranore;
 	elseif name =="uranium-fuel-cell" then
-		return 5 * amount;
+		return radfuelcell * amount;
 	elseif name =="used-up-uranium-fuel-cell" then
-		return 15 * amount;
+		return radburntfuelcell * amount;
 	elseif name =="uranium-235" then
-		return 3 * amount;
+		return raduranium235 * amount;
 	elseif name =="uranium-238" then
-		return 2 * amount;
+		return raduranium238 * amount;
 
 	end
 
@@ -67,6 +75,13 @@ function calcRadiation(e)
 			exposedrad = 0;
 			-- exposedrad = exposedrad + player.surface.count_entities_filtered{area = playerarea, name = "uranium-ore"};
 			-- exposedrad = exposedrad + player.surface.count_entities_filtered{area = playerarea, name = "nuclear-reactor"} * 5;
+			if invRadiation then
+				for name,amount in pairs(player.get_inventory(1).get_contents()) do
+					exposedrad = exposedrad + calcRadiationByItem(name, amount);
+					_log(">>PINV: " .. name .. " " .. amount);
+
+				end			
+			end			
 			for index,entity in pairs(player.surface.find_entities_filtered{area = playerarea}) do
 				if entity.type == "resource" then
 					currad = calcRadiationByItem(entity.name, entity.amount);
@@ -92,13 +107,13 @@ function calcRadiation(e)
 				elseif entity.name == "centrifuge" then
 					if entity.is_crafting() then
 						currad = 0;
-						currad = currad + (player.surface.count_entities_filtered{area = playerarea, name = "centrifuge"} * 25);
+						currad = currad + (player.surface.count_entities_filtered{area = playerarea, name = "centrifuge"} * radcentrifuge);
 						exposedrad = exposedrad + currad;
 					end
 				elseif entity.type == "reactor" then
 					if entity.energy  > 0 then
 						currad = 0;
-						currad = currad + (player.surface.count_entities_filtered{area = playerarea, type = "reactor"} * 10);
+						currad = currad + (player.surface.count_entities_filtered{area = playerarea, type = "reactor"} * radreactor);
 						exposedrad = exposedrad + currad;
 					end
 				else
@@ -130,7 +145,17 @@ script.on_event({defines.events.on_tick},   function (e)
 end)
 
 script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
-  toxicityValue = settings.global["toxicity-value"].value;
+	toxicityValue = settings.global["toxicity-value"].value;
+	radiationAreaSize = settings.global["radiation-area-size"].value;
+	invRadiation = settings.global["radiation-in-player-inventory"].value;
+  
+	raduranore = settings.global["rad-uran-ore"].value;
+	radfuelcell = settings.global["rad-fuel-cell"].value;
+	radburntfuelcell = settings.global["rad-burnt-fuel-cell"].value;
+	raduranium235 = settings.global["rad-uranium-235"].value;
+	raduranium238 = settings.global["rad-uranium-238"].value;
+	radcentrifuge = settings.global["rad-centrifuge"].value;
+	radreactor = settings.global["rad-reactor"].value;  
 end)
 
 function set_hwz(player, hwz)
