@@ -11,7 +11,7 @@ local raduranium238 = settings.global["rad-uranium-238"].value;
 local radcentrifuge = settings.global["rad-centrifuge"].value;
 local radreactor = settings.global["rad-reactor"].value;
 function _log(...)
- game.print("LOG: " .. ...)
+ --game.print("LOG: " .. ...)
 end
 
 script.on_init(function()
